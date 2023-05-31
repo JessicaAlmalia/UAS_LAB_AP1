@@ -1,0 +1,201 @@
+#include <iostream>
+#include <vector> //library yang berfungsi sebagai array dinamis untuk menyimpan daftar notes
+#include <string> //library untuk menggunakan header std 
+
+struct Note {  //Kelas yang kita gunakan untuk menciptakan catatan terdiri dari dua komponen, yaitu judul dan isi
+    std::string judul;
+    std::string isi;
+};
+
+//Array dinamis notes yang menyimpan daftar note dari kelas note
+std::vector<Note> notes;
+
+//fungsi untuk menampilkan waktu penciptaan note
+void waktu(){
+    time_t rawTime; //time_t menampilkan jumlah detik
+        struct tm *localTime;
+        time(&rawTime); //&rawtime mengkonversi jumlah detik menjadi waktu dalam tanggal,bulan,hari,jam,menit,detik secara spesifik
+        localTime=localtime(&rawTime);
+        localTime->tm_hour+=7; //localtime ditambah 7(GMT+7) agar waktunya sesuai dengan waktu Indonesia
+        std::cout<<asctime(localTime)<<std::endl;
+}
+
+//fungsi untuk membuat note baru
+void add() {
+    std::string pil,judul, isi;
+    do{
+        waktu();
+    std::cout << "Masukkkan judul note: "<<std::endl;;
+    std::cin.ignore(); //cin.ignore()mengabaikan newline agar program/kompiler dapat langsung baca baris yang bawah
+    std::getline(std::cin, judul);//kita gunakan getline agar user bisa input kalimat dengan spasi
+    std::cout << "Masukkan isi note: "<<std::endl;
+    std::getline(std::cin, isi);
+
+    //untuk menyimpan notes yang sudah diinput user kita buat seperti di bawah
+    Note note;
+    note.judul = judul;
+    note.isi = isi;
+    notes.push_back(note);
+     
+    std::cout << "Note berhasil ditambahkan!" << std::endl;
+    std::cout<<"Tambahkan note lain? Silahkan ketik y jika iya, dan t untuk kembali."<<std::endl;
+    std::cin>>pil;} while(pil=="y"); //ulang program selagi loop="y"
+}
+
+//fungsi untuk menampilkan note yang sudah diinput 
+void display() {
+        std::string choice,loop;
+    if (notes.empty()) { //jika user belum input notes, maka array dinamis notes masih empty/kosong
+        std::cout << "Tidak ada notes yang tersimpan. Mohon tambahkan note terlebih dahulu." << std::endl;
+        return;
+    }
+    do{ 
+        std::cout<<"=============================="<<std::endl;
+        std::cout<<"||Note yang sudah tersimpan:||"<<std::endl;
+        std::cout<<"=============================="<<std::endl;
+    for (size_t i = 0; i < notes.size(); ++i) { //index note dimulai dari 0, selama i kurang dari banyak note yang diinput user,
+       std::cout <<"||Note ke-: " << i <<std::endl; //maka,program dalam perulangan ini akan terus ditampilkan 
+       std::cout <<"||"; waktu();  
+       std::cout <<"==>Judul: " << notes[i].judul << std::endl;
+       std::cout <<"=============================="<<std::endl;
+    }
+    for (size_t choice = 0; choice < notes.size(); ++choice) { //input index dari user dimulai dari 0, selama inputan kurang dari banyak notes,
+                                                               //program perulangan ini akan terus ditampilkan
+       std::cout << "Tamplkan isi Note ke-(0-"<<notes.size()-1<< "): "; //user diminta untuk memasukkan perintah menampilkan notes index berapa
+       std::cin  >> choice; //user memasukkan index notes
+       if(choice>notes.size()-1){std::cout<<"Maaf. Note tidak ada di daftar. "<<std::endl; return;}//jika inputan user tidak sesuai indeks
+       std::cout << "Note ke-"<<choice<<":"<<std::endl;
+       std::cout <<"==>Judul:"<< notes[choice].judul<<std::endl;
+       std::cout <<"==>Isi: " << notes[choice].isi << std::endl;
+       std::cout<<"Apakah anda ingin menampilkan note yang lain? Tekan y jika iya, dan t jika tidak."<<std::endl;
+       std::cin>>loop;
+    }  
+    }while(loop=="y");
+}
+
+//fungsi yang sama dengan fungsi display, hanya saja pada fungsi ini ditampilkan judul beserta isinya
+void display2() {
+        std::string choice;
+    if (notes.empty()) {
+        std::cout << "Tidak ada notes yang tersimpan. Mohon tambahkan note terlebih dahulu." << std::endl;
+        return;
+    }
+        std::cout<<"=============================="<<std::endl;
+        std::cout<<"||Note yang sudah tersimpan:||"<<std::endl;
+        std::cout<<"=============================="<<std::endl;
+    for (size_t i = 0; i < notes.size(); ++i) {
+       std::cout <<"||Note ke-: " << i <<std::endl;
+       std::cout <<"||"; waktu();  
+       std::cout <<"==>Judul: " << notes[i].judul << std::endl;
+       std::cout <<"==>Isi  : " << notes[i].isi   << std::endl;
+       std::cout <<"=============================="<<std::endl;
+    }
+}
+
+//fungsi untuk menghapus note yang sudah dibuat
+void deleteNote() {
+    std::string loop;
+    if (notes.empty()) {
+        std::cout << "Tidak ada notes yang tersimpan untuk dihapus." << std::endl;
+        return;
+    }
+    do{
+    display2(); //menampilkan fungsi display2 agar user dapat melihat dulu daftar notes dan isinya yang sudah dibuatnya
+               //agar tidak salah ketika menghapus
+    int a;//variabel yang digunakan untuk menampung indeks note yang diinginkan user
+    std::cout << "Hapus note ke-(0-" << notes.size() - 1 << "): ";
+    std::cin >> a;
+    std::cin.ignore(); 
+
+    if (a < 0 || a >= notes.size()) {
+        std::cout << "Maaf,pilihan yang anda masukkan tidak ada." << std::endl;
+        return;
+    }
+
+    notes.erase(notes.begin() + a); //untuk menghapus note yang diinginkan user berdasarkan indeksnya
+
+    std::cout << "Note berhasil dihapus!" << std::endl;
+    std::cout << "Apakah anda ingin menghapus yang lain lagi? Ketik y jika iya dan t untuk kembali."<<std::endl;
+    std::cin>>loop;
+    }while(loop=="y");
+}
+
+//fungsi untuk mengubah note yang sudah dibuat 
+void editNote() {
+    std::string loop;
+    if (notes.empty()) {
+        std::cout << "Tidak ada note yang tersimpan untuk diedit." << std::endl;
+        return;
+    }
+    do{
+    display2();
+    int a;
+    std::cout << "Ubah note ke-(0-" << notes.size() - 1 << "): ";
+    std::cin >> a;
+    std::cin.ignore(); 
+
+    if (a < 0 || a >= notes.size()) {
+        std::cout << "Maaf. Pilihan yang anda masukkan tidak ada." << std::endl;
+        return;
+    }
+     
+    std::string JudulBaru; //variabel baru berbentuk string untuk menampung perubahan judul baru untuk notes
+    std::cout<<"Masukkan judul baru untuk note:";
+    std::getline(std::cin,JudulBaru);
+    
+    notes[a].judul = JudulBaru;//judul notes yang ingin user rubah diperbaharui 
+
+
+    std::string IsiBaru;//variabel baru berbentuk string untuk menampung perubahan isi note baru 
+    std::cout << "Masukkan isi note yang baru: ";
+    std::getline(std::cin, IsiBaru);
+
+    notes[a].isi = IsiBaru;//isi note yang ingin user rubah diperbaharui
+    
+    std::cout << "Note berhasil diubah! Mau mengubah note yang lain lagi? Ketik y jika iya dan t untuk kembali." << std::endl;
+    std::cin>>loop;
+    }while(loop=="y");    
+    }
+//program utama
+int main() {
+    int pilihan; //variabel berbentuk bilangan bulat untuk menampung pilihan menu user 
+
+    while (true) {
+        std::cout << "=======================================" << std::endl;
+        std::cout << "||Welcome to Note Taking Application!||" << std::endl;
+        std::cout << "=======================================" << std::endl;
+        std::cout << "||1. Tambah Note                     ||" << std::endl;
+        std::cout << "||2. Hapus Note                      ||" << std::endl;
+        std::cout << "||3. Ubah Note                       ||" << std::endl;
+        std::cout << "||4. Tampilkan Note                  ||" << std::endl;
+        std::cout << "||5. Keluar                          ||" << std::endl;
+        std::cout << "=======================================" << std::endl;
+        std::cout << "Masukkan pilihan(1-5): ";
+        std::cin >> pilihan;
+        std::cin.ignore(); 
+
+        switch (pilihan) {
+            case 1: //jika pilihan 1
+                add(); //menampilkan program untuk membuat note baru
+                break;
+            case 2: //jika piihan 2
+                deleteNote(); //menampilkan program untuk menghapus note yang sudah dibuat
+                break;
+            case 3: //jika pilihan 3
+                editNote(); //menampilkan program untuk mengubah note yang sudah dibuat
+                break;
+            case 4: //jika pilihan 4
+                display(); //menampilkan program untuk menampilkan notes yang sudah dibuat
+                break;
+            case 5: //jika pilihan 5
+                std::cout << "...Program ini Selesai..." << std::endl; //program selesai dan exit dari program
+                return 0;
+            default: //jika pilihan bukan 1-5 sesuai ketentuan
+                std::cout << "Mohon maaf.Pilihan tidak ada di daftar.Mohon coba lagi.." << std::endl;
+        }            //program akan meminta user untuk mengulang masukkan inputan
+
+        std::cout << std::endl;
+    }
+
+    return 0;
+}
